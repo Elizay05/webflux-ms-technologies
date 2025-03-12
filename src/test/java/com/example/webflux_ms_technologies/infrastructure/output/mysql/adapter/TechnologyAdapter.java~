@@ -1,0 +1,4 @@
+package com.example.webflux_ms_technologies.infrastructure.output.mysql.adapter;
+
+public class TechnologyAdapter {
+}
