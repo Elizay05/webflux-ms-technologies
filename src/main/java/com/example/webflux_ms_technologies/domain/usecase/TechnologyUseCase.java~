@@ -4,7 +4,6 @@ import com.example.webflux_ms_technologies.domain.api.ITechnologyServicePort;
 import com.example.webflux_ms_technologies.domain.exceptions.DescriptionTooLongException;
 import com.example.webflux_ms_technologies.domain.exceptions.NameTooLongException;
 import com.example.webflux_ms_technologies.domain.exceptions.TechnologyAlreadyExistsException;
-import com.example.webflux_ms_technologies.domain.exceptions.TechnologyNotFoundException;
 import com.example.webflux_ms_technologies.domain.model.TechnologyModel;
 import com.example.webflux_ms_technologies.domain.model.TechnologyPageModel;
 import com.example.webflux_ms_technologies.domain.spi.ITechnologyPersistencePort;
@@ -58,7 +57,7 @@ public class TechnologyUseCase implements ITechnologyServicePort {
         return technologyPersistencePort.getTechnologiesByIds(technologyIds)
                 .flatMap(techList -> {
                     if (techList.isEmpty()) {
-                        return Mono.error(new TechnologyNotFoundException(TECHNOLOGIES_NOT_FOUND));
+                        return Mono.error(new RuntimeException(TECHNOLOGIES_NOT_FOUND));
                     }
                     return Mono.just(techList);
                 });

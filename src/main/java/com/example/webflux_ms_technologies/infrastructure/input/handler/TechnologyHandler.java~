@@ -3,6 +3,7 @@ package com.example.webflux_ms_technologies.infrastructure.input.handler;
 import com.example.webflux_ms_technologies.application.dto.request.TechnologyIdsRequest;
 import com.example.webflux_ms_technologies.application.dto.request.TechnologyRequest;
 import com.example.webflux_ms_technologies.application.handler.ITechnologyRestHandler;
+import com.example.webflux_ms_technologies.infrastructure.input.utils.constants.ConstantsInput;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;

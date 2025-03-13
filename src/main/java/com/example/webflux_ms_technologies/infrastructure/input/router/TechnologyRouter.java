@@ -8,6 +8,9 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static com.example.webflux_ms_technologies.infrastructure.input.utils.constants.ConstantsInput.PATH_TECHNOLOGIES;
+import static com.example.webflux_ms_technologies.infrastructure.input.utils.constants.ConstantsInput.PATH_TECHNOLOGIES_BY_IDS;
+
 @Configuration
 public class TechnologyRouter {
 
@@ -18,8 +21,9 @@ public class TechnologyRouter {
     @Bean
     public RouterFunction<ServerResponse> technologyRoutes(TechnologyHandler handler) {
         return RouterFunctions.route()
-                .POST("/technologies", handler::createTechnology)
-                .GET("/technologies", handler::getTechnologies)
+                .POST(PATH_TECHNOLOGIES, handler::createTechnology)
+                .GET(PATH_TECHNOLOGIES, handler::getTechnologies)
+                .POST(PATH_TECHNOLOGIES_BY_IDS, handler::getTechnologiesByIds)
                 .build();
     }
 }

@@ -3,10 +3,12 @@ package com.example.webflux_ms_technologies.domain;
 import com.example.webflux_ms_technologies.domain.exceptions.DescriptionTooLongException;
 import com.example.webflux_ms_technologies.domain.exceptions.NameTooLongException;
 import com.example.webflux_ms_technologies.domain.exceptions.TechnologyAlreadyExistsException;
+import com.example.webflux_ms_technologies.domain.exceptions.TechnologyNotFoundException;
 import com.example.webflux_ms_technologies.domain.model.TechnologyModel;
 import com.example.webflux_ms_technologies.domain.model.TechnologyPageModel;
 import com.example.webflux_ms_technologies.domain.spi.ITechnologyPersistencePort;
 import com.example.webflux_ms_technologies.domain.usecase.TechnologyUseCase;
+import com.example.webflux_ms_technologies.domain.utils.constants.ConstantsDomain;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +19,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.never;
@@ -107,5 +110,45 @@ public class TechnologyUseCaseTest {
                 .verifyComplete();
 
         Mockito.verify(technologyPersistencePort).getAllTechnologies(0, 10, true);
+    }
+
+    @Test
+    public void test_get_technologies_by_ids_returns_list_when_technologies_exist() {
+        List<Long> technologyIds = Arrays.asList(1L, 2L);
+        List<TechnologyModel> expectedTechnologies = Arrays.asList(
+                new TechnologyModel(1L, "Java", "Programming language"),
+                new TechnologyModel(2L, "Spring", "Framework")
+        );
+
+        Mockito.when(technologyPersistencePort.getTechnologiesByIds(technologyIds))
+                .thenReturn(Mono.just(expectedTechnologies));
+
+        // Act
+        Mono<List<TechnologyModel>> result = technologyUseCase.getTechnologiesByIds(technologyIds);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(expectedTechnologies)
+                .verifyComplete();
+
+        Mockito.verify(technologyPersistencePort).getTechnologiesByIds(technologyIds);
+    }
+
+    @Test
+    public void test_get_technologies_by_ids_throws_exception_when_list_empty() {
+        List<Long> technologyIds = Arrays.asList(1L, 2L);
+        List<TechnologyModel> emptyList = Collections.emptyList();
+
+        Mockito.when(technologyPersistencePort.getTechnologiesByIds(technologyIds))
+                .thenReturn(Mono.just(emptyList));
+
+        // Act & Assert
+        StepVerifier.create(technologyUseCase.getTechnologiesByIds(technologyIds))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof TechnologyNotFoundException &&
+                                throwable.getMessage().equals(ConstantsDomain.TECHNOLOGIES_NOT_FOUND))
+                .verify();
+
+        Mockito.verify(technologyPersistencePort).getTechnologiesByIds(technologyIds);
     }
 }

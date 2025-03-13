@@ -2,7 +2,9 @@ package com.example.webflux_ms_technologies.infrastructure.configuration;
 
 import com.example.webflux_ms_technologies.application.handler.ITechnologyRestHandler;
 import com.example.webflux_ms_technologies.application.handler.impl.TechnologyRestHandlerImpl;
+import com.example.webflux_ms_technologies.application.mapper.ITechnologyPageResponseMapper;
 import com.example.webflux_ms_technologies.application.mapper.ITechnologyRequestMapper;
+import com.example.webflux_ms_technologies.application.mapper.ITechnologyResponseMapper;
 import com.example.webflux_ms_technologies.domain.api.ITechnologyServicePort;
 import com.example.webflux_ms_technologies.domain.spi.ITechnologyPersistencePort;
 import com.example.webflux_ms_technologies.domain.usecase.TechnologyUseCase;
@@ -19,6 +21,8 @@ public class BeanConfig {
     private final ITechnologyRepository technologyRepository;
     private final ITechnologyEntityMapper technologyEntityMapper;
     private final ITechnologyRequestMapper technologyRequestMapper;
+    private final ITechnologyResponseMapper technologyResponseMapper;
+    private final ITechnologyPageResponseMapper technologyPageResponseMapper;
 
     @Bean
     public ITechnologyServicePort technologyServicePort() {
@@ -32,6 +36,6 @@ public class BeanConfig {
 
     @Bean
     public ITechnologyRestHandler technologyRestHandler() {
-        return new TechnologyRestHandlerImpl(technologyServicePort(), technologyRequestMapper);
+        return new TechnologyRestHandlerImpl(technologyServicePort(), technologyRequestMapper, technologyResponseMapper, technologyPageResponseMapper);
     }
 }
