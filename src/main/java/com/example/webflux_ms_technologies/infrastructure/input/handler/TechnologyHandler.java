@@ -43,6 +43,9 @@ public class TechnologyHandler {
     }
 
     public Mono<ServerResponse> getTechnologies(ServerRequest request) {
-        return technologyRestHandler.getTechnologies(request);
+        return technologyRestHandler.getTechnologies(request)
+        .flatMap(techPage -> ServerResponse.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(techPage));
     }
 }

@@ -2,6 +2,8 @@ package com.example.webflux_ms_technologies.infrastructure.input.handler;
 
 import com.example.webflux_ms_technologies.application.dto.request.TechnologyRequest;
 import com.example.webflux_ms_technologies.application.handler.ITechnologyRestHandler;
+import com.example.webflux_ms_technologies.domain.model.TechnologyModel;
+import com.example.webflux_ms_technologies.domain.model.TechnologyPageModel;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Path;
 import jakarta.validation.Validator;
@@ -22,6 +24,8 @@ import reactor.test.StepVerifier;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class TechnologyHandlerTest {
@@ -89,21 +93,25 @@ public class TechnologyHandlerTest {
     }
 
     @Test
-    public void test_get_technologies_delegates_to_handler_and_returns_response() {
-        ServerRequest mockRequest = Mockito.mock(ServerRequest.class);
-        ServerResponse mockResponse = ServerResponse.ok().build().block();
+    public void test_get_technologies_returns_ok_response() {
+        // Arrange
+        ServerRequest request = MockServerRequest.builder().build();
+        TechnologyModel technologyModel = new TechnologyModel(1L, "Java", "Programming language");
+        TechnologyPageModel technologyPageModel = new TechnologyPageModel(Collections.singletonList(technologyModel), 2, 3);
 
-        Mockito.when(technologyRestHandler.getTechnologies(mockRequest))
-                .thenReturn(Mono.just(mockResponse));
+        Mockito.when(technologyRestHandler.getTechnologies(request))
+                .thenReturn(Mono.just(technologyPageModel));
 
         // Act
-        Mono<ServerResponse> result = technologyHandler.getTechnologies(mockRequest);
+        Mono<ServerResponse> responseMono = technologyHandler.getTechnologies(request);
 
         // Assert
-        StepVerifier.create(result)
-                .expectNext(mockResponse)
+        StepVerifier.create(responseMono)
+                .expectNextMatches(response -> {
+                    assertEquals(HttpStatus.OK, response.statusCode());
+                    assertEquals(MediaType.APPLICATION_JSON, response.headers().getContentType());
+                    return true;
+                })
                 .verifyComplete();
-
-        Mockito.verify(technologyRestHandler).getTechnologies(mockRequest);
     }
 }
