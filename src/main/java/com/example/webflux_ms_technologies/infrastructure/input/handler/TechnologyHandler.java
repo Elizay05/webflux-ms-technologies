@@ -41,4 +41,8 @@ public class TechnologyHandler {
                             .then(ServerResponse.status(HttpStatus.CREATED).build());
                 });
     }
+
+    public Mono<ServerResponse> getTechnologies(ServerRequest request) {
+        return technologyRestHandler.getTechnologies(request);
+    }
 }
