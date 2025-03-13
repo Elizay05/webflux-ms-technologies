@@ -19,7 +19,6 @@ public class TechnologyRouter {
     public RouterFunction<ServerResponse> technologyRoutes(TechnologyHandler handler) {
         return RouterFunctions.route()
                 .POST("/technologies", handler::createTechnology)
-                .GET("/technologies", handler::getTechnologies)
                 .build();
     }
 }

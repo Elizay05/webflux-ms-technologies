@@ -24,7 +24,7 @@ public class ControllerAdvisor {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
-    
+
     @ExceptionHandler(NameTooLongException.class)
     public ResponseEntity<ExceptionResponse> handleNameTooLongException(NameTooLongException ex) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());

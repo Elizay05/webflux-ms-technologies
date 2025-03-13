@@ -5,6 +5,7 @@ import com.example.webflux_ms_technologies.domain.exceptions.DescriptionTooLongE
 import com.example.webflux_ms_technologies.domain.exceptions.NameTooLongException;
 import com.example.webflux_ms_technologies.domain.exceptions.TechnologyAlreadyExistsException;
 import com.example.webflux_ms_technologies.domain.model.TechnologyModel;
+import com.example.webflux_ms_technologies.domain.model.TechnologyPageModel;
 import com.example.webflux_ms_technologies.domain.spi.ITechnologyPersistencePort;
 import reactor.core.publisher.Mono;
 
@@ -42,5 +43,10 @@ public class TechnologyUseCase implements ITechnologyServicePort {
 
     public Mono<Boolean> existTechnology(String technologyName) {
         return technologyPersistencePort.existTechnologyByName(technologyName);
+    }
+
+    @Override
+    public Mono<TechnologyPageModel> getTechnologies(int page, int size, boolean asc) {
+        return technologyPersistencePort.getAllTechnologies(page, size, asc);
     }
 }

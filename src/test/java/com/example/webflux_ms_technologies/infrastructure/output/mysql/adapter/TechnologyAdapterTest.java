@@ -1,6 +1,7 @@
 package com.example.webflux_ms_technologies.infrastructure.output.mysql.adapter;
 
 import com.example.webflux_ms_technologies.domain.model.TechnologyModel;
+import com.example.webflux_ms_technologies.domain.model.TechnologyPageModel;
 import com.example.webflux_ms_technologies.infrastructure.output.mysql.entity.TechnologyEntity;
 import com.example.webflux_ms_technologies.infrastructure.output.mysql.mapper.ITechnologyEntityMapper;
 import com.example.webflux_ms_technologies.infrastructure.output.mysql.repository.ITechnologyRepository;
@@ -10,8 +11,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TechnologyAdapterTest {
@@ -30,8 +38,8 @@ public class TechnologyAdapterTest {
         TechnologyModel technologyModel = new TechnologyModel(1L, "Java", "Programming language");
         TechnologyEntity technologyEntity = new TechnologyEntity(1L, "Java", "Programming language");
 
-        Mockito.when(technologyEntityMapper.toEntity(technologyModel)).thenReturn(technologyEntity);
-        Mockito.when(technologyRepository.save(technologyEntity)).thenReturn(Mono.just(technologyEntity));
+        when(technologyEntityMapper.toEntity(technologyModel)).thenReturn(technologyEntity);
+        when(technologyRepository.save(technologyEntity)).thenReturn(Mono.just(technologyEntity));
 
         // Act
         Mono<Void> result = technologyAdapter.saveTechnology(technologyModel);
@@ -40,7 +48,133 @@ public class TechnologyAdapterTest {
         StepVerifier.create(result)
                 .verifyComplete();
 
-        Mockito.verify(technologyEntityMapper).toEntity(technologyModel);
-        Mockito.verify(technologyRepository).save(technologyEntity);
+        verify(technologyEntityMapper).toEntity(technologyModel);
+        verify(technologyRepository).save(technologyEntity);
+    }
+
+    @Test
+    public void test_exist_technology_by_name_returns_true_when_technology_exists() {
+        String technologyName = "Java";
+
+        when(technologyRepository.existsTechnologyEntitiesByName(technologyName))
+                .thenReturn(Mono.just(true));
+
+        // Act
+        Mono<Boolean> result = technologyAdapter.existTechnologyByName(technologyName);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(true)
+                .verifyComplete();
+
+        verify(technologyRepository).existsTechnologyEntitiesByName(technologyName);
+    }
+
+    @Test
+    public void test_exist_technology_by_name_returns_false_when_technology_does_not_exist() {
+        String technologyName = "NonExistentTech";
+
+        when(technologyRepository.existsTechnologyEntitiesByName(technologyName))
+                .thenReturn(Mono.just(false));
+
+        // Act
+        Mono<Boolean> result = technologyAdapter.existTechnologyByName(technologyName);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNext(false)
+                .verifyComplete();
+
+        verify(technologyRepository).existsTechnologyEntitiesByName(technologyName);
+    }
+
+    @Test
+    public void test_get_all_technologies_returns_technology_page_model_with_data_asc() {
+        int page = 0;
+        int size = 10;
+        boolean asc = true;
+
+        TechnologyEntity entity1 = new TechnologyEntity(1L, "Java", "Programming language");
+        TechnologyEntity entity2 = new TechnologyEntity(2L, "Spring", "Framework");
+
+        TechnologyModel model1 = new TechnologyModel(1L, "Java", "Programming language");
+        TechnologyModel model2 = new TechnologyModel(2L, "Spring", "Framework");
+
+        Mockito.when(technologyRepository.findAllByOrderByNameAsc(any(Pageable.class)))
+                .thenReturn(Flux.just(entity1, entity2));
+        Mockito.when(technologyRepository.count()).thenReturn(Mono.just(2L));
+        Mockito.when(technologyEntityMapper.toModel(entity1)).thenReturn(model1);
+        Mockito.when(technologyEntityMapper.toModel(entity2)).thenReturn(model2);
+
+        // Act
+        Mono<TechnologyPageModel> result = technologyAdapter.getAllTechnologies(page, size, asc);
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(pageModel -> {
+                    assertEquals(2, pageModel.getTechnologies().size());
+                    assertEquals(1, pageModel.getTotalPages());
+                    assertEquals(2L, pageModel.getTotalElements());
+                    assertEquals("Java", pageModel.getTechnologies().get(0).getName());
+                    assertEquals("Spring", pageModel.getTechnologies().get(1).getName());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void test_get_all_technologies_returns_technology_page_model_with_data_desc() {
+        int page = 0;
+        int size = 10;
+        boolean asc = false;
+
+        TechnologyEntity entity1 = new TechnologyEntity(1L, "Java", "Programming language");
+        TechnologyEntity entity2 = new TechnologyEntity(2L, "Spring", "Framework");
+
+        TechnologyModel model1 = new TechnologyModel(1L, "Java", "Programming language");
+        TechnologyModel model2 = new TechnologyModel(2L, "Spring", "Framework");
+
+        Mockito.when(technologyRepository.findAllByOrderByNameDesc(any(Pageable.class)))
+                .thenReturn(Flux.just(entity2, entity1)); // En orden descendente
+        Mockito.when(technologyRepository.count()).thenReturn(Mono.just(2L));
+        Mockito.when(technologyEntityMapper.toModel(entity1)).thenReturn(model1);
+        Mockito.when(technologyEntityMapper.toModel(entity2)).thenReturn(model2);
+
+        // Act
+        Mono<TechnologyPageModel> result = technologyAdapter.getAllTechnologies(page, size, asc);
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(pageModel -> {
+                    assertEquals(2, pageModel.getTechnologies().size());
+                    assertEquals(1, pageModel.getTotalPages());
+                    assertEquals(2L, pageModel.getTotalElements());
+                    assertEquals("Spring", pageModel.getTechnologies().get(0).getName()); // Ahora "Spring" es el primero
+                    assertEquals("Java", pageModel.getTechnologies().get(1).getName()); // Ahora "Java" es el segundo
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void test_get_all_technologies_handles_empty_repository() {
+        int page = 0;
+        int size = 10;
+        boolean asc = true;
+
+        Mockito.when(technologyRepository.findAllByOrderByNameAsc(any(Pageable.class)))
+                .thenReturn(Flux.empty());
+        Mockito.when(technologyRepository.count()).thenReturn(Mono.just(0L));
+
+        // Act
+        Mono<TechnologyPageModel> result = technologyAdapter.getAllTechnologies(page, size, asc);
+
+        // Assert
+        StepVerifier.create(result)
+                .assertNext(pageModel -> {
+                    assertNotNull(pageModel);
+                    assertTrue(pageModel.getTechnologies().isEmpty());
+                    assertEquals(0, pageModel.getTotalPages());
+                    assertEquals(0L, pageModel.getTotalElements());
+                })
+                .verifyComplete();
     }
 }

@@ -87,23 +87,4 @@ public class TechnologyHandlerTest {
         Mockito.verify(validator).validate(invalidRequest);
         Mockito.verify(technologyRestHandler, Mockito.never()).createTechnology(invalidRequest);
     }
-
-    @Test
-    public void test_get_technologies_delegates_to_handler_and_returns_response() {
-        ServerRequest mockRequest = Mockito.mock(ServerRequest.class);
-        ServerResponse mockResponse = ServerResponse.ok().build().block();
-
-        Mockito.when(technologyRestHandler.getTechnologies(mockRequest))
-                .thenReturn(Mono.just(mockResponse));
-
-        // Act
-        Mono<ServerResponse> result = technologyHandler.getTechnologies(mockRequest);
-
-        // Assert
-        StepVerifier.create(result)
-                .expectNext(mockResponse)
-                .verifyComplete();
-
-        Mockito.verify(technologyRestHandler).getTechnologies(mockRequest);
-    }
 }
