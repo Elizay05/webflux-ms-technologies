@@ -115,23 +115,4 @@ public class TechnologyHandlerTest {
 
         Mockito.verify(technologyRestHandler).getTechnologiesByIds(ids);
     }
-
-    @Test
-    public void test_getTechnologiesByIds_emptyIds_returnsBadRequest() {
-        // Arrange
-        TechnologyIdsRequest invalidRequest = new TechnologyIdsRequest(Collections.emptyList());
-        ServerRequest request = MockServerRequest.builder()
-                .body(Mono.just(invalidRequest));
-
-        // Act
-        Mono<ServerResponse> responseMono = technologyHandler.getTechnologiesByIds(request);
-
-        // Assert
-        StepVerifier.create(responseMono)
-                .expectNextMatches(response -> response.statusCode() == HttpStatus.BAD_REQUEST &&
-                        response.headers().getContentType().equals(MediaType.APPLICATION_JSON))
-                .verifyComplete();
-
-        Mockito.verify(technologyRestHandler, Mockito.never()).getTechnologiesByIds(Mockito.any());
-    }
 }

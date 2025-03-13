@@ -1,4 +1,0 @@
-package com.example.webflux_ms_technologies.infrastructure.exceptionHandler;
-
-public class ControllerAdvisorTest {
-}

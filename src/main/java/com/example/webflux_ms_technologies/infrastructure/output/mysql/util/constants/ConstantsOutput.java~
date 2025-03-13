@@ -1,0 +1,5 @@
+package com.example.webflux_ms_technologies.infrastructure.output.mysql.util.constants;
+
+public class ConstantsOutput {
+    public static final Integer MAX_LENGTH_TECHNOLOGY_NAME = 50;
+}
