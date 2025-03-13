@@ -2,6 +2,7 @@ package com.example.webflux_ms_technologies.infrastructure.input.handler;
 
 import com.example.webflux_ms_technologies.application.dto.request.TechnologyIdsRequest;
 import com.example.webflux_ms_technologies.application.dto.request.TechnologyRequest;
+import com.example.webflux_ms_technologies.application.dto.response.TechnologyPageResponse;
 import com.example.webflux_ms_technologies.application.dto.response.TechnologyResponse;
 import com.example.webflux_ms_technologies.application.handler.ITechnologyRestHandler;
 import jakarta.validation.ConstraintViolation;
@@ -23,7 +24,8 @@ import reactor.test.StepVerifier;
 
 import java.util.*;
 
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TechnologyHandlerTest {
@@ -44,8 +46,8 @@ public class TechnologyHandlerTest {
         ServerRequest request = MockServerRequest.builder()
                 .body(Mono.just(validRequest));
 
-        Mockito.when(validator.validate(validRequest)).thenReturn(Collections.emptySet());
-        Mockito.when(technologyRestHandler.createTechnology(validRequest)).thenReturn(Mono.empty());
+        when(validator.validate(validRequest)).thenReturn(Collections.emptySet());
+        when(technologyRestHandler.createTechnology(validRequest)).thenReturn(Mono.empty());
 
         // Act
         Mono<ServerResponse> responseMono = technologyHandler.createTechnology(request);
@@ -55,7 +57,7 @@ public class TechnologyHandlerTest {
                 .expectNextMatches(response -> response.statusCode() == HttpStatus.CREATED)
                 .verifyComplete();
 
-        Mockito.verify(technologyRestHandler).createTechnology(validRequest);
+        verify(technologyRestHandler).createTechnology(validRequest);
     }
 
     @Test
@@ -68,12 +70,12 @@ public class TechnologyHandlerTest {
         ConstraintViolation<TechnologyRequest> nameViolation = mock(ConstraintViolation.class);
         Path path = mock(Path.class);
 
-        Mockito.when(path.toString()).thenReturn("name");
-        Mockito.when(nameViolation.getPropertyPath()).thenReturn(path);
-        Mockito.when(nameViolation.getMessage()).thenReturn("is required");
+        when(path.toString()).thenReturn("name");
+        when(nameViolation.getPropertyPath()).thenReturn(path);
+        when(nameViolation.getMessage()).thenReturn("is required");
         violations.add(nameViolation);
 
-        Mockito.when(validator.validate(invalidRequest)).thenReturn(violations);
+        when(validator.validate(invalidRequest)).thenReturn(violations);
 
         // Act
         Mono<ServerResponse> responseMono = technologyHandler.createTechnology(request);
@@ -86,8 +88,35 @@ public class TechnologyHandlerTest {
                 })
                 .verifyComplete();
 
-        Mockito.verify(validator).validate(invalidRequest);
-        Mockito.verify(technologyRestHandler, Mockito.never()).createTechnology(invalidRequest);
+        verify(validator).validate(invalidRequest);
+        verify(technologyRestHandler, Mockito.never()).createTechnology(invalidRequest);
+    }
+
+    @Test
+    public void test_get_technologies_returns_ok_response() {
+        // Arrange
+        ITechnologyRestHandler technologyRestHandler = mock(ITechnologyRestHandler.class);
+        Validator validator = mock(Validator.class);
+        TechnologyHandler technologyHandler = new TechnologyHandler(technologyRestHandler, validator);
+
+        ServerRequest request = mock(ServerRequest.class);
+        TechnologyPageResponse pageResponse = new TechnologyPageResponse();
+
+        when(technologyRestHandler.getTechnologies(request)).thenReturn(Mono.just(pageResponse));
+
+        // Act
+        Mono<ServerResponse> result = technologyHandler.getTechnologies(request);
+
+        // Assert
+        StepVerifier.create(result)
+                .expectNextMatches(response -> {
+                    assertEquals(HttpStatus.OK, response.statusCode());
+                    assertEquals(MediaType.APPLICATION_JSON, response.headers().getContentType());
+                    return true;
+                })
+                .verifyComplete();
+
+        verify(technologyRestHandler).getTechnologies(request);
     }
 
     @Test
@@ -103,7 +132,7 @@ public class TechnologyHandlerTest {
         ServerRequest request = MockServerRequest.builder()
                 .body(Mono.just(validRequest));
 
-        Mockito.when(technologyRestHandler.getTechnologiesByIds(ids)).thenReturn(Mono.just(mockResponse));
+        when(technologyRestHandler.getTechnologiesByIds(ids)).thenReturn(Mono.just(mockResponse));
 
         // Act
         Mono<ServerResponse> responseMono = technologyHandler.getTechnologiesByIds(request);
@@ -113,7 +142,7 @@ public class TechnologyHandlerTest {
                 .expectNextMatches(response -> response.statusCode() == HttpStatus.OK)
                 .verifyComplete();
 
-        Mockito.verify(technologyRestHandler).getTechnologiesByIds(ids);
+        verify(technologyRestHandler).getTechnologiesByIds(ids);
     }
 
     @Test
@@ -132,6 +161,6 @@ public class TechnologyHandlerTest {
                         response.headers().getContentType().equals(MediaType.APPLICATION_JSON))
                 .verifyComplete();
 
-        Mockito.verify(technologyRestHandler, Mockito.never()).getTechnologiesByIds(Mockito.any());
+        verify(technologyRestHandler, Mockito.never()).getTechnologiesByIds(Mockito.any());
     }
 }
