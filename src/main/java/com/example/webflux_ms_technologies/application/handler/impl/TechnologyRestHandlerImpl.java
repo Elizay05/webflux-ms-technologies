@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static com.example.webflux_ms_technologies.application.utils.constants.ConstantsApplication.*;
+
 @RequiredArgsConstructor
 public class TechnologyRestHandlerImpl implements ITechnologyRestHandler {
 
@@ -31,9 +33,9 @@ public class TechnologyRestHandlerImpl implements ITechnologyRestHandler {
 
     @Override
     public Mono<TechnologyPageResponse> getTechnologies(ServerRequest request) {
-        int page = Integer.parseInt(request.queryParam("page").orElse("0"));
-        int size = Integer.parseInt(request.queryParam("size").orElse("10"));
-        boolean asc = Boolean.parseBoolean(request.queryParam("asc").orElse("true"));
+        int page = Integer.parseInt(request.queryParam(PAGE).orElse(DEFAULT_PAGE));
+        int size = Integer.parseInt(request.queryParam(SIZE).orElse(DEFAULT_SIZE));
+        boolean asc = Boolean.parseBoolean(request.queryParam(ASC).orElse(DEFAULT_ASC));
 
         return technologyServicePort.getTechnologies(page, size, asc)
                 .map(technologyPageResponseMapper::toTechnologyPageResponse);

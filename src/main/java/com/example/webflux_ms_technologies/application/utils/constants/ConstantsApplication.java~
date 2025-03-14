@@ -1,0 +1,5 @@
+package com.example.webflux_ms_technologies.application.utils.constants;
+
+public class ConstantsApplication {
+    public static final String IS_REQUIRED = "es requerido";
+}

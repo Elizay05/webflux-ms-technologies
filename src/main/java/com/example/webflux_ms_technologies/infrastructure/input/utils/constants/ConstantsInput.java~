@@ -63,9 +63,4 @@ public class ConstantsInput {
     public static final String EXAMPLE_NAME_GET = "Ejemplo de obtención de tecnologías";
     public static final String EXAMPLE_TECHNOLOGY_GET = "{ \"technologies\": [{ \"id\": \"1\", \"name\": \"IA\", \"description\": \"Inteligencia Artificial\" }], \"totalPages\": 1, \"totalItems\": 1 }";
     public static final String EXAMPLE_ERROR_INVALID_PARAMS = "{ \"error\": \"Valor de página o tamaño inválido\" }";
-    public static final String EXAMPLE_NAME_GET_BY_IDS = "Ejemplo de obtención de tecnologías por IDs";
-    public static final String EXAMPLE_TECHNOLOGY_GET_BY_IDS = "{ \"technologyIds\": [1, 2, 3] }";
-    public static final String EXAMPLE_TECHNOLOGY_GET_BY_IDS_SUCCESS = "[ { \"id\": 1, \"name\": \"IA\", \"description\": \"Inteligencia Artificial\" }, { \"id\": 2, \"name\": \"Blockchain\", \"description\": \"Libro mayor descentralizado\" } ]";
-    public static final String EXAMPLE_ERROR_EMPTY_IDS = "{ \"error\": \"Los IDs de tecnologías no pueden estar vacíos\" }";
-    public static final String EXAMPLE_ERROR_NOT_FOUND = "{ \"error\": \"Algunos IDs de tecnología no fueron encontrados\" }";
 }

@@ -1,0 +1,7 @@
+package com.example.webflux_ms_technologies.infrastructure.configuration;
+
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenAPIConfig {
+}
